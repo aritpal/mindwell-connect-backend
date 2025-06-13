@@ -2,12 +2,14 @@ package com.aritpal.mindwell_connect.service;
 
 import com.aritpal.mindwell_connect.dto.AvailabilityRequest;
 import com.aritpal.mindwell_connect.dto.TherapistProfileRequest;
+import com.aritpal.mindwell_connect.dto.TherapistProfileResponse;
 import com.aritpal.mindwell_connect.entity.Availability;
 import com.aritpal.mindwell_connect.entity.TherapistProfile;
 import com.aritpal.mindwell_connect.entity.User;
 import com.aritpal.mindwell_connect.repository.AvailabilityRepository;
 import com.aritpal.mindwell_connect.repository.TherapistProfileRepository;
 import com.aritpal.mindwell_connect.repository.UserRepository;
+import com.aritpal.mindwell_connect.util.UserMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,10 +30,11 @@ public class TherapistService {
     @Autowired
     private AvailabilityRepository availabilityRepo;
 
-    public TherapistProfile createOrUpdateProfile(String email, TherapistProfileRequest req) {
+    public TherapistProfileResponse createOrUpdateProfile(String email, TherapistProfileRequest req) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         TherapistProfile profile = profileRepo.findByUser(user).orElse(new TherapistProfile());
+
         profile.setUser(user);
         profile.setFullName(req.getFullName());
         profile.setSpecialties(req.getSpecialties());
@@ -39,13 +42,37 @@ public class TherapistService {
         profile.setBio(req.getBio());
         profile.setConsultationFee(req.getConsultationFee());
 
-        return profileRepo.save(profile);
+        TherapistProfile savedProfile = profileRepo.save(profile);
+
+        TherapistProfileResponse response = new TherapistProfileResponse();
+        response.setId(savedProfile.getId());
+        response.setFullName(savedProfile.getFullName());
+        response.setSpecialties(savedProfile.getSpecialties());
+        response.setQualifications(savedProfile.getQualifications());
+        response.setBio(savedProfile.getBio());
+        response.setConsultationFee(savedProfile.getConsultationFee());
+        response.setUser(UserMapper.toDto(savedProfile.getUser()));
+
+        return response;
     }
 
-    public TherapistProfile getProfile(String email) {
+    public TherapistProfileResponse getProfile(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return profileRepo.findByUser(user).orElseThrow(() -> new RuntimeException("Therapist profile not found"));
+        TherapistProfile profile = profileRepo.findByUser(user).orElseThrow(() -> new RuntimeException("Therapist profile not found"));
+
+        TherapistProfileResponse response = new TherapistProfileResponse();
+        response.setId(profile.getId());
+        response.setFullName(profile.getFullName());
+        response.setSpecialties(profile.getSpecialties());
+        response.setQualifications(profile.getQualifications());
+        response.setBio(profile.getBio());
+        response.setConsultationFee(profile.getConsultationFee());
+        response.setUser(UserMapper.toDto(profile.getUser()));
+        response.setCreatedAt(profile.getCreatedAt());
+        response.setUpdatedAt(profile.getUpdatedAt());
+
+        return response;
     }
 
     @Transactional

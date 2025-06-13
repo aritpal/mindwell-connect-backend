@@ -2,8 +2,8 @@ package com.aritpal.mindwell_connect.controller;
 
 import com.aritpal.mindwell_connect.dto.AvailabilityRequest;
 import com.aritpal.mindwell_connect.dto.TherapistProfileRequest;
+import com.aritpal.mindwell_connect.dto.TherapistProfileResponse;
 import com.aritpal.mindwell_connect.entity.Availability;
-import com.aritpal.mindwell_connect.entity.TherapistProfile;
 import com.aritpal.mindwell_connect.service.TherapistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,25 +23,25 @@ public class TherapistController {
     private TherapistService therapistService;
 
     @PostMapping("/profile")
-    public ResponseEntity<?> createProfile(@RequestBody TherapistProfileRequest request, @AuthenticationPrincipal UserDetails userDetails) {
-        TherapistProfile profile = therapistService.createOrUpdateProfile(userDetails.getUsername(), request);
+    public ResponseEntity<TherapistProfileResponse> createProfile(@RequestBody TherapistProfileRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        TherapistProfileResponse profile = therapistService.createOrUpdateProfile(userDetails.getUsername(), request);
         return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
-        TherapistProfile profile = therapistService.getProfile(userDetails.getUsername());
+    public ResponseEntity<TherapistProfileResponse> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        TherapistProfileResponse profile = therapistService.getProfile(userDetails.getUsername());
         return ResponseEntity.ok(profile);
     }
 
     @PostMapping("/availability/{therapistId}")
-    public ResponseEntity<?> saveAvailability(@PathVariable Long therapistId, @RequestBody List<AvailabilityRequest> request) {
+    public ResponseEntity<List<Availability>> saveAvailability(@PathVariable Long therapistId, @RequestBody List<AvailabilityRequest> request) {
         List<Availability> slots = therapistService.saveAvailability(therapistId, request);
         return ResponseEntity.ok(slots);
     }
 
     @GetMapping("/availability/{therapistId}")
-    public ResponseEntity<?> getAvailability(@PathVariable Long therapistId) {
+    public ResponseEntity<List<Availability>> getAvailability(@PathVariable Long therapistId) {
         List<Availability> slots = therapistService.getAvailability(therapistId);
         return ResponseEntity.ok(slots);
     }
