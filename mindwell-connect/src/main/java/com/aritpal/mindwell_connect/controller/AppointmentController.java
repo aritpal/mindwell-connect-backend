@@ -20,21 +20,20 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
 
-    @PreAuthorize("hasRole('PATIENT')")
     @PostMapping("/book")
+    @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<AppointmentResponse> bookAppointment(@AuthenticationPrincipal UserDetails userDetails, @RequestBody AppointmentRequest request) {
-        AppointmentResponse response = appointmentService.bookAppointment(userDetails.getUsername(), request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(appointmentService.book(userDetails.getUsername(), request));
     }
 
-    @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/mine")
-    public ResponseEntity<List<AppointmentResponse>> getPatientAppointments(@AuthenticationPrincipal UserDetails userDetails) {
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<List<AppointmentResponse>> getMyAppointments(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(appointmentService.getPatientAppointments(userDetails.getUsername()));
     }
 
-    @PreAuthorize("hasRole('THERAPIST')")
     @GetMapping("/therapist")
+    @PreAuthorize("hasRole('THERAPIST')")
     public ResponseEntity<List<AppointmentResponse>> getTherapistAppointments(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(appointmentService.getTherapistAppointments(userDetails.getUsername()));
     }
@@ -43,5 +42,4 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponse> updateStatus(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails, @RequestBody AppointmentStatusUpdateRequest request) {
         return ResponseEntity.ok(appointmentService.updateStatus(id, userDetails.getUsername(), request.getStatus()));
     }
-
 }
